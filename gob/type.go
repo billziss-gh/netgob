@@ -34,6 +34,7 @@ const (
 	xGob    = 1 + iota // GobEncoder or GobDecoder
 	xBinary            // encoding.BinaryMarshaler or encoding.BinaryUnmarshaler
 	xText              // encoding.TextMarshaler or encoding.TextUnmarshaler
+	xNetgob = 16
 )
 
 var (
@@ -89,6 +90,8 @@ func validUserType(rt reflect.Type) (ut *userTypeInfo, err error) {
 		ut.externalEnc, ut.encIndir = xGob, indir
 	} else if ok, indir := implementsInterface(ut.user, binaryMarshalerInterfaceType); ok {
 		ut.externalEnc, ut.encIndir = xBinary, indir
+	} else if reflect.Chan == ut.base.Kind() {
+		ut.externalEnc, ut.encIndir = xNetgob, int8(ut.indir)
 	}
 
 	// NOTE(rsc): Would like to allow MarshalText here, but results in incompatibility
@@ -101,6 +104,8 @@ func validUserType(rt reflect.Type) (ut *userTypeInfo, err error) {
 		ut.externalDec, ut.decIndir = xGob, indir
 	} else if ok, indir := implementsInterface(ut.user, binaryUnmarshalerInterfaceType); ok {
 		ut.externalDec, ut.decIndir = xBinary, indir
+	} else if reflect.Chan == ut.base.Kind() {
+		ut.externalDec, ut.decIndir = xNetgob, int8(ut.indir-1)
 	}
 
 	// See note above.
@@ -576,13 +581,13 @@ func isSent(field *reflect.StructField) bool {
 	if !isExported(field.Name) {
 		return false
 	}
-	// If the field is a chan or func or pointer thereto, don't send it.
+	// If the field is a func or pointer thereto, don't send it.
 	// That is, treat it like an unexported field.
 	typ := field.Type
 	for typ.Kind() == reflect.Ptr {
 		typ = typ.Elem()
 	}
-	if typ.Kind() == reflect.Chan || typ.Kind() == reflect.Func {
+	if typ.Kind() == reflect.Func {
 		return false
 	}
 	return true
@@ -654,6 +659,7 @@ type wireType struct {
 	GobEncoderT      *gobEncoderType
 	BinaryMarshalerT *gobEncoderType
 	TextMarshalerT   *gobEncoderType
+	NetgobEncoderT   *gobEncoderType
 }
 
 func (w *wireType) string() string {
@@ -676,6 +682,8 @@ func (w *wireType) string() string {
 		return w.BinaryMarshalerT.Name
 	case w.TextMarshalerT != nil:
 		return w.TextMarshalerT.Name
+	case w.NetgobEncoderT != nil:
+		return w.NetgobEncoderT.Name
 	}
 	return unknown
 }
@@ -741,6 +749,8 @@ func buildTypeInfo(ut *userTypeInfo, rt reflect.Type) (*typeInfo, error) {
 			info.wire = &wireType{BinaryMarshalerT: gt}
 		case xText:
 			info.wire = &wireType{TextMarshalerT: gt}
+		case xNetgob:
+			info.wire = &wireType{NetgobEncoderT: gt}
 		}
 		rt = ut.user
 	} else {

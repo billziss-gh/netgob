@@ -29,6 +29,7 @@ type Decoder struct {
 	freeList     *decoderState                           // list of free decoderStates; avoids reallocation
 	countBuf     []byte                                  // used for decoding integers while parsing messages
 	err          error
+	netgobDec    NetgobDecoder
 }
 
 // NewDecoder returns a new decoder that reads from the io.Reader.
@@ -47,6 +48,11 @@ func NewDecoder(r io.Reader) *Decoder {
 	dec.countBuf = make([]byte, 9) // counts may be uint64s (unlikely!), require 9 bytes
 
 	return dec
+}
+
+// SetNetgobDecoder sets the NetgobDecoder to use for decoding channels.
+func (dec *Decoder) SetNetgobDecoder(netgobDec NetgobDecoder) {
+	dec.netgobDec = netgobDec
 }
 
 // recvType loads the definition of a type.

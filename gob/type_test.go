@@ -166,12 +166,13 @@ type N2 struct{}
 
 // See comment in type.go/Register.
 func TestRegistrationNaming(t *testing.T) {
+	typeofN2 := reflect.TypeOf(N2{})
 	testCases := []struct {
 		t    interface{}
 		name string
 	}{
 		{&N1{}, "*gob.N1"},
-		{N2{}, "encoding/gob.N2"},
+		{N2{}, typeofN2.PkgPath() + "." + typeofN2.Name()},
 	}
 
 	for _, tc := range testCases {

@@ -733,6 +733,10 @@ func (dec *Decoder) decodeGobDecoder(ut *userTypeInfo, state *decoderState, valu
 		err = value.Interface().(encoding.BinaryUnmarshaler).UnmarshalBinary(b)
 	case xText:
 		err = value.Interface().(encoding.TextUnmarshaler).UnmarshalText(b)
+	case xNetgob:
+		if nil != dec.netgobDec {
+			err = dec.netgobDec.NetgobDecode(value.Interface(), b)
+		}
 	}
 	if err != nil {
 		error_(err)
@@ -925,7 +929,8 @@ func (dec *Decoder) decIgnoreOpFor(wireId typeId, inProgress map[typeId]*decOp) 
 				state.dec.ignoreStruct(*enginePtr)
 			}
 
-		case wire.GobEncoderT != nil, wire.BinaryMarshalerT != nil, wire.TextMarshalerT != nil:
+		case wire.GobEncoderT != nil, wire.BinaryMarshalerT != nil, wire.TextMarshalerT != nil,
+			wire.NetgobEncoderT != nil:
 			op = func(i *decInstr, state *decoderState, value reflect.Value) {
 				state.dec.ignoreGobDecoder(state)
 			}
@@ -978,7 +983,8 @@ func (dec *Decoder) compatibleType(fr reflect.Type, fw typeId, inProgress map[re
 	// The parentheses look odd but are correct.
 	if (ut.externalDec == xGob) != (ok && wire.GobEncoderT != nil) ||
 		(ut.externalDec == xBinary) != (ok && wire.BinaryMarshalerT != nil) ||
-		(ut.externalDec == xText) != (ok && wire.TextMarshalerT != nil) {
+		(ut.externalDec == xText) != (ok && wire.TextMarshalerT != nil) ||
+		(ut.externalDec == xNetgob) != (ok && wire.NetgobEncoderT != nil) {
 		return false
 	}
 	if ut.externalDec != 0 { // This test trumps all others.

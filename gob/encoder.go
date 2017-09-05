@@ -21,6 +21,7 @@ type Encoder struct {
 	freeList   *encoderState           // list of free encoderStates; avoids reallocation
 	byteBuf    encBuffer               // buffer for top-level encoderState
 	err        error
+	netgobEnc  NetgobEncoder
 }
 
 // Before we encode a message, we reserve space at the head of the
@@ -36,6 +37,11 @@ func NewEncoder(w io.Writer) *Encoder {
 	enc.sent = make(map[reflect.Type]typeId)
 	enc.countState = enc.newEncoderState(new(encBuffer))
 	return enc
+}
+
+// SetNetgobEncoder sets the NetgobEncoder to use for encoding channels.
+func (dec *Encoder) SetNetgobEncoder(netgobEnc NetgobEncoder) {
+	dec.netgobEnc = netgobEnc
 }
 
 // writer() returns the innermost writer the encoder is using

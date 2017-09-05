@@ -425,6 +425,11 @@ func (deb *debugger) typeDefinition(indent tab, id typeId) {
 		deb.delta(1)
 		com := deb.common()
 		wire.TextMarshalerT = &gobEncoderType{com}
+	case 7: // NetgobEncoder type, one field of {{Common}}
+		// Field number 0 is CommonType
+		deb.delta(1)
+		com := deb.common()
+		wire.NetgobEncoderT = &gobEncoderType{com}
 	default:
 		errorf("bad field in type %d", fieldNum)
 	}

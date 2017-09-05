@@ -3,6 +3,16 @@
 // license that can be found in the LICENSE file.
 
 /*
+Package netgob is a replacement for Go's gob package that also supports encoding/decoding of channels. Package netgob can be used to marshal channels in networking scenarios; the netchan (https://github.com/billziss-gh/netchan) library uses netgob for this purpose.
+
+This is accomplished through the use of the new `NetgobEncoder` and `NetgobDecoder` interfaces. When netgob sees a channel during encoding/decoding it calls one of these interfaces. A marshaling layer can implement these interfaces to convert channels to marshaling references and vice-versa.
+
+The same technique could be used to encode/decode functions, although netgob does not support them at this time.
+
+The original package gob documentation follows.
+
+Package gob
+
 Package gob manages streams of gobs - binary values exchanged between an
 Encoder (transmitter) and a Decoder (receiver).  A typical use is transporting
 arguments and results of remote procedure calls (RPCs) such as those provided by
