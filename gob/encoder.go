@@ -193,11 +193,6 @@ func (enc *Encoder) sendTypeDescriptor(w io.Writer, state *encoderState, ut *use
 	}
 	if _, alreadySent := enc.sent[rt]; !alreadySent {
 		// No, so send it.
-		if enc.netgobEnc == nil && ut.base.Kind() == reflect.Chan {
-			err := errors.New("gob sendTypeDescriptor can't handle type: " + ut.base.String())
-			enc.setError(err)
-			return
-		}
 		sent := enc.sendType(w, state, rt)
 		if enc.err != nil {
 			return

@@ -628,9 +628,6 @@ func gobEncodeOpFor(ut *userTypeInfo) (*encOp, int) {
 		if !state.sendZero && isZero(v) {
 			return
 		}
-		if state.enc.netgobEnc == nil && ut.base.Kind() == reflect.Chan {
-			return
-		}
 		state.update(i)
 		state.enc.encodeGobEncoder(state.b, ut, v)
 	}
