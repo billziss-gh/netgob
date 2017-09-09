@@ -931,6 +931,7 @@ func registerBasics() {
 	Register([]bool(nil))
 	Register([]string(nil))
 	// chan support
+	Register(struct{}{})
 	Register((chan struct{})(nil))
 	Register((chan byte)(nil))
 	Register((chan int)(nil))
