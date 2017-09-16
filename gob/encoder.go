@@ -40,8 +40,8 @@ func NewEncoder(w io.Writer) *Encoder {
 }
 
 // SetNetgobEncoder sets the NetgobEncoder to use for encoding channels.
-func (dec *Encoder) SetNetgobEncoder(netgobEnc NetgobEncoder) {
-	dec.netgobEnc = netgobEnc
+func (enc *Encoder) SetNetgobEncoder(netgobEnc NetgobEncoder) {
+	enc.netgobEnc = netgobEnc
 }
 
 // writer() returns the innermost writer the encoder is using
