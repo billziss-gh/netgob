@@ -735,7 +735,7 @@ func (dec *Decoder) decodeGobDecoder(ut *userTypeInfo, state *decoderState, valu
 		err = value.Interface().(encoding.TextUnmarshaler).UnmarshalText(b)
 	case xNetgob:
 		if nil != dec.netgobDec {
-			err = dec.netgobDec.NetgobDecode(value.Interface(), b)
+			err = dec.netgobDec.NetgobDecode(value, b)
 		}
 	}
 	if err != nil {

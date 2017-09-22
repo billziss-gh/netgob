@@ -488,7 +488,7 @@ func (enc *Encoder) encodeGobEncoder(b *encBuffer, ut *userTypeInfo, v reflect.V
 		data, err = v.Interface().(encoding.TextMarshaler).MarshalText()
 	case xNetgob:
 		if nil != enc.netgobEnc {
-			data, err = enc.netgobEnc.NetgobEncode(v.Interface())
+			data, err = enc.netgobEnc.NetgobEncode(v)
 		}
 	}
 	if err != nil {

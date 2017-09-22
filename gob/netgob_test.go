@@ -13,12 +13,12 @@ import (
 type testNetgobCoder struct {
 }
 
-func (self *testNetgobCoder) NetgobEncode(i interface{}) ([]byte, error) {
+func (self *testNetgobCoder) NetgobEncode(v reflect.Value) ([]byte, error) {
 	return nil, nil
 }
 
-func (self *testNetgobCoder) NetgobDecode(i interface{}, buf []byte) error {
-	v := reflect.ValueOf(i).Elem()
+func (self *testNetgobCoder) NetgobDecode(v reflect.Value, buf []byte) error {
+	v = v.Elem()
 	v.Set(reflect.MakeChan(v.Type(), 0))
 	return nil
 }

@@ -4,6 +4,10 @@
 
 package gob
 
+import (
+	"reflect"
+)
+
 // NetgobEncoder is the interface used to encode channels.
 // An object that implements NetgobEncoder will be called
 // when a channel needs to be encoded.
@@ -13,7 +17,7 @@ package gob
 type NetgobEncoder interface {
 	// NetgobEncode returns a byte slice representing the encoding of the
 	// passed channel.
-	NetgobEncode(interface{}) ([]byte, error)
+	NetgobEncode(reflect.Value) ([]byte, error)
 }
 
 // NetgobDecoder is the interface used to decode channels.
@@ -25,5 +29,5 @@ type NetgobEncoder interface {
 type NetgobDecoder interface {
 	// NetgobDecode overwrites the passed channel, which must be a pointer,
 	// with the value represented by the byte slice.
-	NetgobDecode(interface{}, []byte) error
+	NetgobDecode(reflect.Value, []byte) error
 }
